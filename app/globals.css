@@ -1,26 +1,204 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
+/* ---------------------------------------------------------------
+   Kollaut palette — change colors here and the whole site follows.
+   Use them in classes like: bg-brand, text-cream, border-olive
+   --------------------------------------------------------------- */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-brand-deep: #d9641e; /* burnt orange */
+  --color-brand: #ee7f27; /* bright orange */
+  --color-cream: #eae2d3;
+  --color-snow: #f7f7f7;
+  --color-olive: #42433a;
+  --color-ink: #141414;
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Page width wrapper: <div className="container-page"> */
+@utility container-page {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 72rem;
+  padding-inline: 1.5rem;
+}
+
+html {
+  color-scheme: dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-ink);
+  color: var(--color-snow);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+/* Blurred orange / red / navy glow behind every page */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(55% 55% at 0% 18%, rgb(255 140 0 / 0.7), transparent 70%),
+    radial-gradient(40% 40% at 42% 0%, rgb(170 35 45 / 0.45), transparent 70%),
+    radial-gradient(35% 35% at 100% 0%, rgb(140 60 10 / 0.4), transparent 70%),
+    radial-gradient(50% 50% at 0% 100%, rgb(8 6 48 / 0.95), transparent 70%),
+    radial-gradient(45% 45% at 100% 100%, rgb(66 67 58 / 0.55), transparent 70%),
+    var(--color-ink);
+}
+
+/* Subtle film grain on top of the glow */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.08;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+::selection {
+  background: var(--color-brand);
+  color: var(--color-ink);
+}
+
+/* ---------------------------------------------------------------
+   Neon effects (orange glow on hover / keyboard focus)
+   .neon-btn   → solid buttons: flickers on, then pulses
+   .neon-ghost → outlined buttons: border + text light up
+   .neon-link  → text links: text glows
+   .neon-card  → cards: glowing border + soft halo
+   .neon-logo  → put on an element inside a .group to glow on hover
+   --------------------------------------------------------------- */
+:root {
+  --neon-soft: 0 0 4px rgb(238 127 39 / 0.8), 0 0 14px rgb(238 127 39 / 0.5),
+    0 0 32px rgb(217 100 30 / 0.35);
+  --neon-strong: 0 0 6px rgb(238 127 39 / 1), 0 0 22px rgb(238 127 39 / 0.75),
+    0 0 52px rgb(217 100 30 / 0.55);
+  --neon-text: 0 0 4px rgb(238 127 39 / 0.9), 0 0 12px rgb(238 127 39 / 0.6),
+    0 0 24px rgb(217 100 30 / 0.4);
+}
+
+/* Light flickers like a neon tube switching on */
+@keyframes neon-flicker {
+  0%, 18%, 22%, 25%, 53%, 57%, 100% { box-shadow: var(--neon-strong); }
+  20%, 24%, 55% { box-shadow: none; }
+}
+@keyframes neon-pulse {
+  0%, 100% { box-shadow: var(--neon-strong); }
+  50% { box-shadow: var(--neon-soft); }
+}
+@keyframes neon-text-flicker {
+  0%, 18%, 22%, 25%, 53%, 57%, 100% { text-shadow: var(--neon-text); }
+  20%, 24%, 55% { text-shadow: none; }
+}
+
+.neon-btn,
+.neon-ghost,
+.neon-card {
+  transition:
+    box-shadow 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease,
+    transform 0.25s ease,
+    translate 0.25s ease;
+}
+.neon-btn:hover,
+.neon-btn:focus-visible {
+  outline: none;
+  transform: translateY(-2px);
+  animation:
+    neon-flicker 0.6s linear,
+    neon-pulse 1.8s ease-in-out 0.6s infinite;
+}
+.neon-btn:active {
+  transform: translateY(0) scale(0.97);
+  box-shadow: var(--neon-strong);
+}
+
+.neon-ghost:hover,
+.neon-ghost:focus-visible {
+  outline: none;
+  color: var(--color-brand);
+  border-color: var(--color-brand);
+  text-shadow: var(--neon-text);
+  transform: translateY(-2px);
+  animation:
+    neon-flicker 0.6s linear,
+    neon-pulse 1.8s ease-in-out 0.6s infinite;
+}
+.neon-ghost:active {
+  transform: scale(0.97);
+}
+
+.neon-link {
+  transition:
+    color 0.2s ease,
+    text-shadow 0.2s ease;
+}
+.neon-link:hover,
+.neon-link:focus-visible {
+  outline: none;
+  color: var(--color-brand);
+  animation: neon-text-flicker 0.5s linear forwards;
+  text-shadow: var(--neon-text);
+}
+
+.neon-card:hover,
+.neon-card:focus-visible {
+  outline: none;
+  border-color: rgb(238 127 39 / 0.8);
+  box-shadow:
+    var(--neon-soft),
+    inset 0 0 24px rgb(238 127 39 / 0.12);
+}
+
+.neon-logo {
+  transition: filter 0.3s ease;
+}
+.group:hover .neon-logo,
+.group:focus-visible .neon-logo {
+  filter: drop-shadow(0 0 6px rgb(238 127 39 / 0.9))
+    drop-shadow(0 0 18px rgb(217 100 30 / 0.6));
+}
+
+/* Map quiz dots: free dots breathe softly, wrong dots shake */
+@keyframes dot-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+@keyframes dot-shake {
+  0%, 100% { translate: 0 0; }
+  20%, 60% { translate: -3px 0; }
+  40%, 80% { translate: 3px 0; }
+}
+.dot-pulse {
+  animation: dot-pulse 2s ease-in-out infinite;
+}
+.dot-shake {
+  animation: dot-shake 0.4s ease-in-out;
+}
+
+/* Respect users who turn off animations in their system settings */
+@media (prefers-reduced-motion: reduce) {
+  .neon-btn:hover,
+  .neon-btn:focus-visible,
+  .neon-ghost:hover,
+  .neon-ghost:focus-visible,
+  .neon-link:hover,
+  .neon-link:focus-visible {
+    animation: none;
+    box-shadow: var(--neon-soft);
+  }
+  .dot-pulse,
+  .dot-shake {
+    animation: none;
+  }
+  .neon-link:hover,
+  .neon-link:focus-visible {
+    box-shadow: none;
+  }
 }
